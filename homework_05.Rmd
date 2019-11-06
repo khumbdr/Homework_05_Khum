@@ -1,0 +1,17 @@
+---
+title: "Homework_05"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Creating new direcotory data and writing
+
+```{r}
+dir.create("data")
+dir.create("writing")
+list.files()
+```
+
