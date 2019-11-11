@@ -114,5 +114,6 @@ ggsave("../writing/den_homi.tiff", width = 8, height=3)
 
 ```{r}
 library(dplyr)
+library(ggplot2)
 ```
 
