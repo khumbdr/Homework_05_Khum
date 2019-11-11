@@ -1,0 +1,112 @@
+---
+title: "Homework_05"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## websites for legend presentation in map
+<https://www.r-spatial.org/r/2018/10/25/ggplot2-sf.html>
+
+```{r}
+library(readr)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(maps)
+library(sf)
+library(tigris)
+library(forcats)
+library(stringr)
+library(broom)
+library(readxl)
+library(lubridate)
+```
+
+
+### Creating new direcotory data and writing
+
+```{r}
+dir.create("data")
+dir.create("writing")
+
+```
+
+```{r}
+list.files()
+list.files("../data")
+```
+
+
+#### Making spatial maps
+```{r}
+list.files()
+list.dirs()
+```
+
+```{r}
+# Loading storm data sets
+storms_2017<- read_csv("../data/StormEvents_details-ftp_v1.0_d2017_c20190817.csv.gz")
+storms_2017 <- storms_2017 %>% 
+  select(BEGIN_DATE_TIME, END_DATE_TIME, 
+         EPISODE_ID:STATE_FIPS, EVENT_TYPE:CZ_NAME, SOURCE,
+         BEGIN_LAT:END_LON) %>% 
+  mutate(BEGIN_DATE_TIME = dmy_hms(BEGIN_DATE_TIME),
+         END_DATE_TIME = dmy_hms(END_DATE_TIME),
+         STATE = str_to_title(STATE),
+         CZ_NAME = str_to_title(CZ_NAME)) %>% 
+  filter(CZ_TYPE == "C") %>% 
+  select(-CZ_TYPE) %>% 
+  mutate(STATE_FIPS = str_pad(STATE_FIPS, 2, side = "left", pad = "0"),
+         CZ_FIPS = str_pad(CZ_FIPS, 3, side = "left", pad = "0")) %>% 
+  unite(fips, STATE_FIPS, CZ_FIPS, sep = "") %>% 
+  rename_all(funs(str_to_lower(.)))
+slice(storms_2017, 1:3)
+
+# Loading homicide data sets
+homicide <- read_csv("../data/homicide_data.csv")
+
+```
+
+## tracts, block groups, county subdivisions
+```{r}
+city<- homicide %>%
+  filter(state=="CO")
+
+city
+library(tigris)
+co_counties <- counties(state = "CO", cb = TRUE, class = "sf")
+
+# getting tracts for colorado
+tracts_co<- tracts(state = "CO", cb = TRUE, class = "sf")
+# getting block grous for colorado
+block_groups_co<- block_groups(state = "CO", cb = TRUE, class = "sf")
+# getting county subdivisions
+county_sub_co<- county_subdivisions(state = "CO", cb = TRUE, class = "sf")
+
+# making sf objects for denver homicides
+co_homi<- st_as_sf(city, coords=c("lon", "lat")) %>%
+  st_set_crs(4269) %>%
+  mutate(unsolved = factor(disposition != "Closed by arrest")) %>%
+  mutate(unsolved = fct_recode(unsolved,
+                               Unsolved = "TRUE",
+                               Solved = "FALSE")) %>%
+  mutate(victim_race = fct_lump(victim_race,n=3))
+
+## plots for homicide
+den_homi<- ggplot()+
+   geom_sf(data = co_counties)+
+    geom_sf(data = county_sub_co)+
+    geom_sf(data = block_groups_co)+
+  geom_sf(data = tracts_co, color = "blue")+
+  geom_sf(data = co_homi, aes(color = victim_race,
+                              fill = victim_race))+
+  xlim(c(-105.06,-104.75))+
+  ylim(c(39.63,39.8))+
+  facet_wrap(~unsolved, ncol=2)
+den_homi
+
+```
+
