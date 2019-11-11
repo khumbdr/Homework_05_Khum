@@ -29,8 +29,8 @@ library(lubridate)
 ### Creating new direcotory data and writing
 
 ```{r}
-dir.create("data")
-dir.create("writing")
+#dir.create("data")
+#dir.create("writing")
 
 ```
 
@@ -108,5 +108,11 @@ den_homi<- ggplot()+
   facet_wrap(~unsolved, ncol=2)
 den_homi
 
+ggsave("../writing/den_homi.tiff", width = 8, height=3)
+
+```
+
+```{r}
+library(dplyr)
 ```
 
