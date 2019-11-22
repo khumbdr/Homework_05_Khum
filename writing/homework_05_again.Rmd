@@ -24,6 +24,8 @@ library(broom)
 library(readxl)
 library(lubridate)
 library(tidytext)
+library(tigris)
+
 ```
 
 ### Creating new direcotory data and writing
@@ -34,27 +36,9 @@ library(tidytext)
 
 ```
 
-## Loading and refining storm data sets
+## Loading and refining homicide data sets
 
 ```{r}
-# Loading storm data sets
-storms_2017<- read_csv("../data/StormEvents_details-ftp_v1.0_d2017_c20190817.csv.gz")
-storms_2017 <- storms_2017 %>% 
-  select(BEGIN_DATE_TIME, END_DATE_TIME, 
-         EPISODE_ID:STATE_FIPS, EVENT_TYPE:CZ_NAME, SOURCE,
-         BEGIN_LAT:END_LON) %>% 
-  mutate(BEGIN_DATE_TIME = dmy_hms(BEGIN_DATE_TIME),
-         END_DATE_TIME = dmy_hms(END_DATE_TIME),
-         STATE = str_to_title(STATE),
-         CZ_NAME = str_to_title(CZ_NAME)) %>% 
-  filter(CZ_TYPE == "C") %>% 
-  select(-CZ_TYPE) %>% 
-  mutate(STATE_FIPS = str_pad(STATE_FIPS, 2, side = "left", pad = "0"),
-         CZ_FIPS = str_pad(CZ_FIPS, 3, side = "left", pad = "0")) %>% 
-  unite(fips, STATE_FIPS, CZ_FIPS, sep = "") %>% 
-  rename_all(funs(str_to_lower(.)))
-slice(storms_2017, 1:3)
-
 # Loading homicide data sets
 homicide <- read_csv("../data/homicide_data.csv")
 
@@ -67,7 +51,7 @@ city<- homicide %>%
   filter(state=="CO")
 
 city
-library(tigris)
+
 co_counties <- counties(state = "CO", cb = TRUE, class = "sf")
 
 # getting tracts for colorado
@@ -103,7 +87,57 @@ den_homi<- ggplot()+
   scale_y_continuous(breaks=c(39.64,39.71,39.78))
 den_homi
 
+```
+
+## Saving the output as png file
+
+```{r}
+# Saving the figure
+
 ggsave("../figure/den_homi.png", width = 20, height = 3, dpi = 300, units = c("in"))
 
+```
+
+```{r}
+# getting data for baltimore city and refining data with lubridate packages
+# changed reported_date into ymd pattern
+# seperated year, month and day into varibles
+# converted month into summer(May-October) and winter (November-April)
+city_bal<- homicide %>%
+  filter(city=="Baltimore") %>%
+  mutate(reported_date =ymd(reported_date)) %>%
+  mutate_at(vars(reported_date), funs(year,month,day)) %>%
+  mutate(month_type= ifelse(month >=5 & month<=10, "Summer", "Winter")) %>%
+  mutate(month=factor(month))
+
+```
+
+## Homocide graph plots
+
+```{r}
+# lets summarize the homicides in baltimore according to month
+homi_month<- city_bal %>%
+  group_by(month,month_type, year) %>%
+  count()
+homi_month
+
+balti_homi <-ggplot(data = homi_month)+
+  geom_bar(aes(x = year, y = n, , group = month,fill = month_type), stat = "identity", position = "dodge")+
+  geom_smooth(aes(x = year, y = n),se=FALSE)+
+  scale_fill_manual(values=c("gray", "skyblue"))+
+  theme(legend.position= "bottom",
+        legend.title=element_blank())+
+  ggtitle("Homicides in Baltimore, MD")+
+  labs(x ="Date", y="Monthly homicides")+
+  geom_vline(xintercept=2014.8, linetype="dashed", color = "red", size = 1.5)+
+  annotate("text", x= 2013.9, y= 40, label = " Arrest of\n Freddie Gray")
+balti_homi
+
+```
+
+```{r}
+# Saving the figure
+
+ggsave("../figure/balti_homi.png", width = 15, height = 5, dpi = 300, units = c("in"))
 ```
 
