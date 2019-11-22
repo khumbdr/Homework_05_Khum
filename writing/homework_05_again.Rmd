@@ -48,7 +48,7 @@ homicide <- read_csv("../data/homicide_data.csv")
 ## use sf_box to limit the extent of plots
 ```{r}
 city<- homicide %>%
-  filter(state=="CO")
+  filter(state == "CO")
 
 city
 
@@ -104,11 +104,11 @@ ggsave("../figure/den_homi.png", width = 20, height = 3, dpi = 300, units = c("i
 # seperated year, month and day into varibles
 # converted month into summer(May-October) and winter (November-April)
 city_bal<- homicide %>%
-  filter(city=="Baltimore") %>%
-  mutate(reported_date =ymd(reported_date)) %>%
+  filter(city == "Baltimore") %>%
+  mutate(reported_date = ymd(reported_date)) %>%
   mutate_at(vars(reported_date), funs(year,month,day)) %>%
-  mutate(month_type= ifelse(month >=5 & month<=10, "Summer", "Winter")) %>%
-  mutate(month=factor(month))
+  mutate(month_type = ifelse(month >= 5 & month <= 10, "Summer", "Winter")) %>%
+  mutate(month = factor(month))
 
 ```
 
@@ -130,7 +130,7 @@ balti_homi <-ggplot(data = homi_month)+
   ggtitle("Homicides in Baltimore, MD")+
   labs(x ="Date", y="Monthly homicides")+
   geom_vline(xintercept=2014.8, linetype="dashed", color = "red", size = 1.5)+
-  annotate("text", x= 2013.9, y= 40, label = " Arrest of\n Freddie Gray")
+  annotate("text", x = 2013.9, y = 40, label = " Arrest of\n Freddie Gray")
 balti_homi
 
 ```
