@@ -9,6 +9,9 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## websites for legend presentation in map
 <https://www.r-spatial.org/r/2018/10/25/ggplot2-sf.html>
+## addiitonal webpage about mapping
+<https://ryanpeek.github.io/2017-11-05-mapping-with-sf-Part-2/>
+<https://www.r-bloggers.com/zooming-in-on-maps-with-sf-and-ggplot2/>
 
 ```{r}
 library(readr)
@@ -34,17 +37,6 @@ library(lubridate)
 
 ```
 
-```{r}
-list.files()
-list.files("../data")
-```
-
-
-#### Making spatial maps
-```{r}
-list.files()
-list.dirs()
-```
 
 ```{r}
 # Loading storm data sets
@@ -71,6 +63,7 @@ homicide <- read_csv("../data/homicide_data.csv")
 ```
 
 ## tracts, block groups, county subdivisions
+## use sf_box to limit the extent of plots
 ```{r}
 city<- homicide %>%
   filter(state=="CO")
@@ -100,20 +93,18 @@ den_homi<- ggplot()+
    geom_sf(data = co_counties)+
     geom_sf(data = county_sub_co)+
     geom_sf(data = block_groups_co)+
-  geom_sf(data = tracts_co, color = "blue")+
+  geom_sf(data = tracts_co, color = "blue", fill = "white", alpha = 0.2)+
   geom_sf(data = co_homi, aes(color = victim_race,
                               fill = victim_race))+
-  xlim(c(-105.06,-104.75))+
-  ylim(c(39.63,39.8))+
+  labs(color = "Victim Race", fill = "Victim Race") + 
+  #xlim(c(-105.06,-104.75))+
+  #ylim(c(39.63,39.8))+
+  coord_sf(xlim = c(-105.06029,-104.74151), ylim = c(39.63327,39.79747), expand = FALSE)+
   facet_wrap(~unsolved, ncol=2)
 den_homi
 
-ggsave("../writing/den_homi.tiff", width = 8, height=3)
 
-```
+#ggsave("../writing/den_homi.png", width = 20, height = 3, dpi = 300, units = c("in"))
 
-```{r}
-library(dplyr)
-library(ggplot2)
 ```
 
