@@ -33,7 +33,6 @@ library(tigris)
 ```{r}
 #dir.create("data")
 #dir.create("writing")
-
 ```
 
 ## Loading and refining homicide data sets
@@ -137,7 +136,6 @@ balti_homi
 
 ```{r}
 # Saving the figure
-
 ggsave("../figure/balti_homi.png", width = 15, height = 5, dpi = 300, units = c("in"))
 ```
 
