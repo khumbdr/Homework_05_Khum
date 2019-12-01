@@ -48,6 +48,7 @@ homicide <- read_csv("../data/homicide_data.csv")
 city<- homicide %>%
   filter(state == "CO")
 
+# getting conties data
 co_counties <- counties(state = "CO", cb = TRUE, class = "sf")
 
 # getting tracts for colorado
