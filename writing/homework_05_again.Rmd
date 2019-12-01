@@ -40,7 +40,6 @@ library(tigris)
 ```{r}
 # Loading homicide data sets
 homicide <- read_csv("../data/homicide_data.csv")
-
 ```
 
 ## tracts, block groups, county subdivisions
@@ -48,8 +47,6 @@ homicide <- read_csv("../data/homicide_data.csv")
 ```{r}
 city<- homicide %>%
   filter(state == "CO")
-
-city
 
 co_counties <- counties(state = "CO", cb = TRUE, class = "sf")
 
