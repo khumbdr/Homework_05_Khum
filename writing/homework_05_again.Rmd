@@ -116,8 +116,8 @@ city_bal<- homicide %>%
 homi_month<- city_bal %>%
   group_by(month,month_type, year) %>%
   count()
-homi_month
 
+# Making graphs
 balti_homi <-ggplot(data = homi_month)+
   geom_bar(aes(x = year, y = n, , group = month,fill = month_type), stat = "identity", position = "dodge")+
   geom_smooth(aes(x = year, y = n),se=FALSE)+
